@@ -1,0 +1,138 @@
+<html>
+
+<head>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <div>
+        <h1>
+            <div id="quiz-title">
+                <h1>ANSWER THE QUESTIONS AS FAST AS YOU CAN!</h1>
+                <h2>
+                    <div id="quiz-question">
+                    </div>
+                </h2>
+                <br />
+                <h3>
+                    <div id="quiz-answer-list">
+                    </div>
+                </h3>
+                <div id="answer-container">
+                    <button id='answer_button' onclick=checkAnswer(question_number) class='btn btn-primary'
+                        style="margin-left: 50px;">NEXT QUESTION</button>
+                </div>
+                <h3>
+                    <div id='stats' style="color: blue;margin-left: 50px;margin-top:20px;">
+
+                    </div>
+                </h3>
+
+            </div>
+        </h1>
+    </div>
+
+</body>
+<script>
+    const quizNumber = window.location.href.split('?')[1].split('=')[1];
+    let question_number = 0;
+    let questions = [];
+    let correct_answers = [];
+    let incorrect_answers = [];
+    let answers = [0, 0, 0, 0];
+    let data = [];
+    let total_points = 0;
+    let current_answer = 0;
+    /*var request = new XMLHttpRequest()
+    request.open('GET','https://opentdb.com/api.php?amount=10&category='+quizNumber)
+    request.onload = function(){
+        data = JSON.parse(this.response)
+        console.log(data)
+        console.log(data[1].category)
+    }
+    request.send()*/
+    async function APICALL() {
+        const response = await fetch('https://opentdb.com/api.php?amount=10&category=' + quizNumber);
+        const myJson = await response.json();
+        data = myJson.results;
+        console.log(data);
+        nextQuestion(question_number, initial = true);
+    }
+
+    APICALL();
+
+
+    function nextQuestion(question_number, initial) {
+        if (initial == true) {
+            question_number = 0;
+        } else if (question_number != 9) {
+            question_number++;
+            console.log('question number', question_number);
+        }
+        document.getElementById('stats').innerHTML = total_points + ' Points';
+        document.getElementById('quiz-question').innerHTML = 'Q' + question_number + '  :  ' + data[question_number].question;
+        data[question_number].incorrect_answers[3] = data[question_number].correct_answer;
+        console.log('all answers', data[question_number].incorrect_answers);
+        //document.getElementById('quiz-answer-list').appendChild = makeUL(data[question_number].incorrect_answers);
+        // document.getElementById('quiz-answer-list').append = makeUL(['1','2','3','4']);
+        document.getElementById('quiz-answer-list').appendChild(makeUL(data[question_number].incorrect_answers));
+    }
+    function checkAnswer(question_number) {
+        if (data[question_number].incorrect_answers[current_answer] == data[question_number].correct_answer) {
+            total_points++;
+        }
+        question_number++;
+        document.getElementById('stats').innerHTML = total_points + ' Points';
+        document.getElementById('quiz-question').innerHTML = 'Q' + question_number + '  :  ' + data[question_number].question;
+        data[question_number].incorrect_answers[3] = data[question_number].correct_answer;
+        //nextQuestion(question_number);
+        updateUL(question_number)
+
+    }
+    function makeUL(array) {
+        var list = document.createElement('ul');
+
+        for (var i = 0; i < array.length; i++) {
+            var item = document.createElement('li');
+            var box = document.createElement('input');
+
+            box.setAttribute('type', 'checkbox');
+            box.setAttribute('id', (i + 1));
+            box.setAttribute('value', (i + 1));
+            box.setAttribute('style', 'margin:10px;height:30px;width:30px;');
+            box.setAttribute('class', 'option');
+            box.setAttribute('onchange', 'optionChange(this)');
+
+            item.setAttribute('style', 'list-style-type:none;')
+            item.setAttribute('id', 'li' + (i + 1));
+
+            item.appendChild(box);
+            item.appendChild(document.createTextNode(array[i]));
+            list.appendChild(item);
+        }
+        console.log('list', list);
+        return list;
+    }
+    function updateUL(question_number) {
+        for (var i = 0; i < 4; i++) {
+            document.getElementById('li' + (i + 1)).innerHTML = '<input type="checkbox" id='+ (i + 1) +' value='+ (i + 1) +' onchange=optionChange(this) style="margin:10px;height:30px;width:30px;"></input>' + data[question_number].incorrect_answers[i];
+        }
+    }
+    
+    function optionChange(obj) {
+        var options = document.getElementsByClassName('option');
+        for (var i = 0; i < options.length; i++) {
+            options[i].checked = false;
+        }
+        obj.checked = true;
+        current_answer = obj.value - 1;
+        console.log(current_answer);
+    }
+
+</script>
+
+</html>
