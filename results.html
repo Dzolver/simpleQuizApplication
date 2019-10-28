@@ -1,0 +1,68 @@
+<html>
+
+<head>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <div id='results_container'>
+        <div>
+            <h1>
+                YOU HAVE FINISHED!
+            </h1>
+            <h2>
+                Here are your results:
+            </h2>
+            <h1>
+                <div id='points_container'>
+
+                </div>
+            </h1>
+            <h3>
+                <div id='time_container'>
+
+                </div>
+            </h3>
+            <button id='clickToGoBack' onclick=ClickToGoBack()>
+                Play another Quiz!
+            </button>
+        </div>
+    </div>
+</body>
+<script>
+    const time_taken = window.location.href.split('=')[2];
+    const total_points = window.location.href.split('=')[1].split('&')[0];
+    var minutes = 0;
+    var seconds = 0;
+    document.getElementById('points_container').innerHTML = "" + total_points + " POINTS OUT OF 10";
+    displayTime();
+    function displayTime() {
+        if (time_taken < 60) {
+            document.getElementById('time_container').innerHTML = "" + round(time_taken,1) + " SECONDS TAKEN";
+        } else {
+            minutes = Math.floor(time_taken / 60);
+            seconds = time_taken - minutes * 60;
+            if (seconds == 0) {
+                document.getElementById('time_container').innerHTML = "" + minutes + " MINUTES TAKEN";
+            } else {
+                document.getElementById('time_container').innerHTML = "" + minutes + " MINUTES AND " + round(seconds,1) + " SECONDS TAKEN";
+            }
+
+        }
+    }
+    function round(value, decimals) {
+        return Number(Math.round(value + 'e' + decimals) + 'e-' + decimals);
+    }
+
+    console.log('time_taken', time_taken);
+    console.log('time_taken', total_points);
+    function ClickToGoBack() {
+        location.href = "index.html";
+    }
+</script>
+
+</html>
