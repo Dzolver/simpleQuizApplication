@@ -91,7 +91,7 @@
     }
 
     function checkAnswer() {
-        if(current_answer_status == false){
+        if (current_answer_status == false) {
             alert('Please select an answer!');
             return current_answer_status;
         }
@@ -148,23 +148,21 @@
     }
 
     function updateUL(all_answer_length) {
-        if (all_answer_length>highest_option_count){
-            //remake the UL list
-            document.getElementById('quiz-answer-list').appendChild(makeUL(data[question_number].incorrect_answers));
-        }
-        console.log('answer child nodes', document.getElementById('answer_button').childNodes);
-        console.log('update UL function called! with (' + question_number + ')');
-        shuffled_answers = shuffle(data[question_number].incorrect_answers)
-        for (var i = 0; i < all_answer_length; i++) {
-            current_item = document.getElementById('li' + (i + 1));
-            current_item.childNodes[0].checked = false;
-            if (shuffled_answers[i] == null) {
-                current_item.setAttribute("hidden", '');
-            } else if (shuffled_answers[i] != null) {
-                current_item.removeAttribute("hidden");
+            console.log('answer child nodes', document.getElementById('answer_button').childNodes);
+            console.log('update UL function called! with (' + question_number + ')');
+            shuffled_answers = shuffle(data[question_number].incorrect_answers)
+            for (var i = 0; i < all_answer_length; i++) {
+                current_item = document.getElementById('li' + (i + 1));
+                current_item.childNodes[0].checked = false;
+                if (shuffled_answers[i] == null) {
+                    current_item.setAttribute("hidden", '');
+                } else if (shuffled_answers[i] != null) {
+                    current_item.removeAttribute("hidden");
+                }
+                current_item.childNodes[1].data = decodeHtml(shuffled_answers[i]);
             }
-            current_item.childNodes[1].data = decodeHtml(shuffled_answers[i]);
-        }
+        
+
     }
 
     function optionChange(obj) {
@@ -183,7 +181,24 @@
         txt.innerHTML = html;
         return txt.value;
     }
-    
+    function shuffle(array) {
+        var currentIndex = array.length, temporaryValue, randomIndex;
+
+        // While there remain elements to shuffle...
+        while (0 !== currentIndex) {
+
+            // Pick a remaining element...
+            randomIndex = Math.floor(Math.random() * currentIndex);
+            currentIndex -= 1;
+
+            // And swap it with the current element.
+            temporaryValue = array[currentIndex];
+            array[currentIndex] = array[randomIndex];
+            array[randomIndex] = temporaryValue;
+        }
+
+        return array;
+    }
 
 </script>
 
