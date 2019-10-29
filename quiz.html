@@ -139,9 +139,10 @@
     }
 
     function updateUL(passed_question_number) {
-        var all_answer_length = data[passed_question_number].incorrect_answers.length + data[passed_question_number].correct_answer.length
+        var all_answer_length = data[passed_question_number].incorrect_answers.length;
         console.log('answer child nodes', document.getElementById('answer_button').childNodes);
         console.log('update UL function called! with (' + passed_question_number + ')');
+        console.log('sdsf' + all_answer_length);
         shuffled_answers = shuffle(data[passed_question_number].incorrect_answers)
         for (var i = 0; i < all_answer_length; i++) {
             current_item = document.getElementById('li' + (i + 1));
@@ -188,7 +189,7 @@
             array[currentIndex] = array[randomIndex];
             array[randomIndex] = temporaryValue;
         }
-
+        console.log('shuffled array ' + array);
         return array;
     }
 
