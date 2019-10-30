@@ -72,14 +72,13 @@
     }
     function updateQuiz(passed_question_number) {
         console.log('updateQuiz ' + passed_question_number);
-        data[passed_question_number].incorrect_answers[3] = data[passed_question_number].correct_answer;
+        concatAnswers(passed_question_number);
         updateDisplay(passed_question_number);
         if (passed_question_number == 0 && current_answer_list==null) {
             current_answer_list = document.getElementById('quiz-answer-list').appendChild(makeUL(shuffle(data[passed_question_number].incorrect_answers)));
         } else if(current_answer_list){
             updateUL(passed_question_number,current_answer_list);
         }
-        updateStats(passed_question_number);
     }
     function checkAnswer() {
         if (current_answer_status == false) {
@@ -103,7 +102,7 @@
         }
     }
 
-    function updateStats(passed_question_number) {
+    function concatAnswers(passed_question_number) {
         console.log('update stats function called with (' + passed_question_number + ',' + total_points + ')');
         data[passed_question_number].incorrect_answers[3] = data[passed_question_number].correct_answer;
     }
