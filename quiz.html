@@ -104,7 +104,8 @@
 
     function concatAnswers(passed_question_number) {
         console.log('update stats function called with (' + passed_question_number + ',' + total_points + ')');
-        data[passed_question_number].incorrect_answers[3] = data[passed_question_number].correct_answer;
+        //data[passed_question_number].incorrect_answers[3] = data[passed_question_number].correct_answer;
+        data[passed_question_number].incorrect_answers.push(data[passed_question_number].correct_answer);
     }
     function updateDisplay(passed_question_number) {
         console.log('updateDisplay ' + passed_question_number);
