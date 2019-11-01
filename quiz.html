@@ -77,7 +77,15 @@
         if (passed_question_number == 0 && current_answer_list==null) {
             current_answer_list = document.getElementById('quiz-answer-list').appendChild(makeUL(shuffle(data[passed_question_number].incorrect_answers)));
         } else if(current_answer_list){
-            updateUL(passed_question_number,current_answer_list);
+            var all_answer_length = updateUL(passed_question_number);
+            if(all_answer_length == 2 && current_answer_list.childNodes[2].innerText != null){
+                current_answer_list.childNodes[2].setAttribute("hidden", '');
+                current_answer_list.childNodes[3].setAttribute("hidden",'');
+            }else{
+                current_answer_list.childNodes[2].removeAttribute("hidden");
+                current_answer_list.childNodes[3].removeAttribute("hidden");
+            }
+            console.log('current answer list',current_answer_list.childNodes[2].innerText);
         }
     }
     function checkAnswer() {
@@ -156,6 +164,7 @@
             }
             current_item.childNodes[1].data = decodeHtml(shuffled_answers[i]);
         }
+        return all_answer_length;
     }
 
     function optionChange(obj) {
