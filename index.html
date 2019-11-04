@@ -16,12 +16,27 @@
 </body>
 
 <script>
-
+    let quizNumber = 0;
+    let question_number = 0;
+    let questions = [];
+    let correct_answers = [];
+    let incorrect_answers = [];
+    let answers = [0, 0, 0, 0];
+    let data = [];
+    let total_points = 0;
+    let current_answer = 0;
+    let current_answer_status = false;
+    let time = 0;
+    var t;
+    var startDate;
+    var highest_option_count = 4;
+    let first_question_number = 1;
+    var current_answer_list;
     initialisePage();
 
-    function handleClick(data) {
-
-        window.location.href = "quiz.html?quiz=" + data;
+    function handleClick(buttonData) {
+        createQuizGame(buttonData);
+        //window.location.href = "quiz.html?quiz=" + data;
     };
     function initialisePage() {
         document.getElementById('quizs-container').appendChild(createQuizList());
@@ -67,8 +82,267 @@
         }
         return quizList_html;
     }
+    function createQuizGame(buttonData){
+        document.getElementById('quizs-container').appendChild(createQuizGameInterface());
+        APICALL(buttonData);
+    }
+    function createQuizGameInterface(){
+        var quiz_game_container = document.createElement('div');
+        quiz_game_container.setAttribute('id','quiz-game-container');
+        
+        var main_container = document.createElement('div');
+        var main_container_heading = document.createElement('h1');
+        
+        var quizTitle = document.createElement('div')
+        quizTitle.setAttribute('id','quiz-title-in-game');
 
+        var firstHeading = document.createElement('h1');
+        firstHeading.innerText = 'ANSWER THE QUESTIONS AS FAST AS YOU CAN!';
+        quizTitle.appendChild(firstHeading);
+        
+        var secondHeading = document.createElement('h2');
+        var quiz_question_html = document.createElement('div');
+        quiz_question_html.setAttribute('id','quiz-question');
+        secondHeading.appendChild(quiz_question_html);
+        quizTitle.appendChild(secondHeading);
 
+        quizTitle.appendChild(document.createElement('br'));
+
+        var thirdHeading = document.createElement('h3');
+        var quiz_answer_list_html = document.createElement('div');
+        quiz_answer_list_html.setAttribute('id','quiz-answer-list');
+        thirdHeading.appendChild(quiz_answer_list_html);
+        quizTitle.appendChild(thirdHeading);
+
+        var answer_container_html = document.createElement('div');
+        answer_container_html.setAttribute('id','answer-container');
+        var answer_button_html = document.createElement('button');
+        answer_button_html.setAttribute('id','answer_button');
+        answer_button_html.setAttribute('value',question_number);
+        answer_button_html.setAttribute('onclick','checkAnswer()');
+        answer_button_html.onclick = function(){checkAnswer();};
+        answer_button_html.setAttribute('class','btn btn-primary');
+        answer_button_html.setAttribute('style','margin-left: 50px;');
+        answer_button_html.innerText = 'NEXT QUESTION';
+        answer_container_html.appendChild(answer_button_html);
+        quizTitle.appendChild(answer_container_html);
+
+        var thirdHeading2 = document.createElement('h3');
+        var stats_html = document.createElement('div');
+        stats_html.setAttribute('id','stats');
+        stats_html.setAttribute('style','color:blue;margin-left:50px;margin-top:20px;');
+        thirdHeading2.appendChild(stats_html);
+        quizTitle.appendChild(thirdHeading2);
+
+        main_container_heading.appendChild(quizTitle);
+        main_container.appendChild(main_container_heading);
+        quiz_game_container.appendChild(main_container);
+        return quiz_game_container;
+    }
+    async function APICALL(quizNumber) {
+        const response = await fetch('https://opentdb.com/api.php?amount=10&category=' + quizNumber);
+        const myJson = await response.json();
+        data = myJson.results;
+        console.log('====', data);
+        startQuiz();
+    }
+    function startQuiz() {
+        question_number = 0;
+        total_points = 0;
+        startDate = new Date();
+        updateQuiz(question_number);
+    }
+    function checkAnswer(){
+        if (current_answer_status == false) {
+            alert('Please select an answer!');
+            return current_answer_status;
+        }
+        console.log('check answer function called! with (' + question_number + ')');
+        if (data[question_number].incorrect_answers[current_answer] == data[question_number].correct_answer) {
+            total_points++;
+        }
+        if (question_number == 9) {
+            //stop the timer
+            now = new Date();
+            time_taken = (now.getTime() - startDate.getTime()) / 1000;
+            alert('time taken ' + time_taken);
+            while(document.getElementById('quiz-game-container').firstChild){
+                document.getElementById('quiz-game-container').removeChild(document.getElementById('quiz-game-container').firstChild);
+                //displayResults();
+            }
+            displayResults();
+            //window.location.href = "results.html?total_points=" + total_points + "&time_taken=" + time_taken;
+        } else {
+            question_number++;
+            updateQuiz(question_number);
+            current_answer_status = false;
+        }
+    }
+    function updateQuiz(passed_question_number) {
+        console.log('updateQuiz ' + passed_question_number);
+        concatAnswers(passed_question_number);
+        updateDisplay(passed_question_number);
+        if (passed_question_number == 0 && current_answer_list==null) {
+            current_answer_list = document.getElementById('quiz-answer-list').appendChild(makeUL(shuffle(data[passed_question_number].incorrect_answers)));
+        } else if(current_answer_list){
+            var all_answer_length = updateUL(passed_question_number);
+            if(all_answer_length == 2 && current_answer_list.childNodes[2].innerText != null){
+                current_answer_list.childNodes[2].setAttribute("hidden", '');
+                current_answer_list.childNodes[3].setAttribute("hidden",'');
+            }else{
+                current_answer_list.childNodes[2].removeAttribute("hidden");
+                current_answer_list.childNodes[3].removeAttribute("hidden");
+            }
+            console.log('current answer list',current_answer_list.childNodes[2].innerText);
+        }
+    }
+    function concatAnswers(passed_question_number) {
+        console.log('update stats function called with (' + passed_question_number + ',' + total_points + ')');
+        //data[passed_question_number].incorrect_answers[3] = data[passed_question_number].correct_answer;
+        data[passed_question_number].incorrect_answers.push(data[passed_question_number].correct_answer);
+    }
+    function updateDisplay(passed_question_number) {
+        console.log('updateDisplay ' + passed_question_number);
+        document.getElementById('stats').innerHTML = total_points + ' Points';
+        document.getElementById('quiz-question').innerHTML = 'Q' + (passed_question_number + 1) + ' : ' + decodeHtml(data[passed_question_number].question);
+    }
+    function makeUL(array) {
+        console.log('makeUL(): ' + array);
+        var list = document.createElement('ul');
+        list.setAttribute('id', 'answerList');
+        for (var i = 0; i < array.length; i++) {
+            var item = document.createElement('li');
+            var box = document.createElement('input');
+
+            box.setAttribute('type', 'checkbox');
+            box.setAttribute('id', (i + 1));
+            box.setAttribute('value', (i + 1));
+            box.setAttribute('style', 'margin:10px;height:30px;width:30px;');
+            box.setAttribute('class', 'option');
+            box.setAttribute('onchange', 'optionChange(this)');
+
+            item.setAttribute('style', 'list-style-type:none;')
+            item.setAttribute('id', 'li' + (i + 1));
+
+            item.appendChild(box);
+            item.appendChild(document.createTextNode(array[i]));
+            list.appendChild(item);
+        }
+        console.log('list', list);
+        return list;
+    }
+
+    function updateUL(passed_question_number) {
+        var all_answer_length = data[passed_question_number].incorrect_answers.length;
+        console.log('answer child nodes', document.getElementById('answer_button').childNodes);
+        console.log('update UL function called! with (' + passed_question_number + ')');
+        console.log('sdsf' + all_answer_length);
+        shuffled_answers = shuffle(data[passed_question_number].incorrect_answers)
+        for (var i = 0; i < all_answer_length; i++) {
+            current_item = document.getElementById('li' + (i + 1));
+            current_item.childNodes[0].checked = false;
+            console.log('current item ' + i + ' : ' + current_item.childNodes[0].checked);
+            if (shuffled_answers[i] == null) {
+                current_item.setAttribute("hidden", '');
+                continue;
+            } else if (shuffled_answers[i] != null) {
+                current_item.removeAttribute("hidden");
+            }
+            current_item.childNodes[1].data = decodeHtml(shuffled_answers[i]);
+        }
+        return all_answer_length;
+    }
+
+    function optionChange(obj) {
+        console.log('option change function called!');
+        var options = document.getElementsByClassName('option');
+        for (var i = 0; i < options.length; i++) {
+            options[i].checked = false;
+        }
+        obj.checked = true;
+        current_answer_status = true;
+        current_answer = obj.value - 1;
+        console.log(current_answer);
+    }
+    function decodeHtml(html) {
+        var txt = document.createElement("textarea");
+        txt.innerHTML = html;
+        return txt.value;
+    }
+    function shuffle(array) {
+        var currentIndex = array.length, temporaryValue, randomIndex;
+
+        // While there remain elements to shuffle...
+        while (0 !== currentIndex) {
+
+            // Pick a remaining element...
+            randomIndex = Math.floor(Math.random() * currentIndex);
+            currentIndex -= 1;
+
+            // And swap it with the current element.
+            temporaryValue = array[currentIndex];
+            array[currentIndex] = array[randomIndex];
+            array[randomIndex] = temporaryValue;
+        }
+        console.log('shuffled array ' + array);
+        return array;
+    }
+    function displayResults(){
+        var display_container = document.getElementById('quiz-game-container');
+        display_container.appendChild(makeResults());
+        displayTime();
+    }
+    function makeResults(){
+        var results = document.createElement('div');
+        results.setAttribute('id','results_container');
+        var results_inner = document.createElement('div');
+        var firstHeading = document.createElement('h1');
+        firstHeading.innerText = "YOU HAVE FINISHED!";
+        var secondHeading = document.createElement('h2');
+        secondHeading.innerText = "Here are your results:";
+        var firstHeading2 = document.createElement('h1');
+        var points_container = document.createElement('div');
+        points_container.setAttribute('id','points_container');
+        firstHeading2.appendChild(points_container);
+        var thirdHeading = document.createElement('h3');
+        var time_container = document.createElement('div');
+        time_container.setAttribute('id','time_container');
+        thirdHeading.appendChild(time_container);
+        var clickToGoBack = document.createElement('button');
+        clickToGoBack.setAttribute('id','clickToGoBack');
+        clickToGoBack.setAttribute('onclick','ClickToGoBack()')
+        clickToGoBack.onclick = function(){ClickToGoBack();};
+        clickToGoBack.innerText = 'Play another quiz!'
+        results_inner.appendChild(firstHeading);
+        results_inner.appendChild(secondHeading);
+        results_inner.appendChild(firstHeading2);
+        results_inner.appendChild(thirdHeading);
+        results_inner.appendChild(clickToGoBack);
+        results.appendChild(results_inner);
+        return results;
+    }
+    function ClickToGoBack(){
+        location.href = "index.html";
+    }
+
+    function displayTime() {
+        if (time_taken < 60) {
+            document.getElementById('time_container').innerHTML = "" + round(time_taken,1) + " SECONDS TAKEN";
+        } else {
+            minutes = Math.floor(time_taken / 60);
+            seconds = time_taken - minutes * 60;
+            if (seconds == 0) {
+                document.getElementById('time_container').innerHTML = "" + minutes + " MINUTES TAKEN";
+            } else {
+                document.getElementById('time_container').innerHTML = "" + minutes + " MINUTES AND " + round(seconds,1) + " SECONDS TAKEN";
+            }
+
+        }
+        document.getElementById('points_container').innerHTML = "" + total_points + " POINTS OUT OF 10";
+    }
+    function round(value, decimals) {
+        return Number(Math.round(value + 'e' + decimals) + 'e-' + decimals);
+    }
 </script>
 
 </html>

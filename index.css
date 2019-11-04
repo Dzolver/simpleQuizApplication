@@ -19,6 +19,15 @@ html{
     margin:10px;
     float:left;
 }
+#quiz-game-container{
+    background-color:#060819;
+    position: absolute;
+    height: 80%;
+    width:80%;
+    top: 10%;
+    left:10%;
+    border-radius: 20px;
+}
 #quiz-list{
     margin:0px;
     padding-inline-start: 0px;
@@ -33,6 +42,13 @@ html{
 #quiz-title{
     background-color: indigo;
     height: 90%;
+}
+#quiz-title-in-game{
+    color: lime;
+    height: 90%; 
+}
+#results_container{
+    color: yellowgreen;
 }
 #selected-quiz{
     background-color:darkgreen;
